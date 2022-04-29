@@ -3,6 +3,7 @@
 #include <semphr.h>
 #define pdMS_TO_TICKS(xTimeInMs) ((TickType_t)(((unsigned long)(xTimeInMs) * (TickType_t)configTICK_RATE_HZ) / (TickType_t)1000))
 #define MAX_LED_ALPHA 255
+
 /*
 B.2.
 Change the program so that received commands can be queued by task1 and task2. The commands have to be
@@ -29,9 +30,6 @@ struct ledParams
 char incomingByte;
 float inputValue = 0;
 int incomingCommand = 0;
-
-TaskHandle_t ledTask1Handle;
-TaskHandle_t ledTask2Handle;
 
 SemaphoreHandle_t mtx;
 
@@ -106,9 +104,11 @@ void setup()
 
     pinMode(11, OUTPUT);
     pinMode(10, OUTPUT);
-
+    
+    // Global led params used by all tasks.
     ledParams *leds = new ledParams();
 
+    // Create the global mutex for ledparam struct.
     mtx = xSemaphoreCreateMutex();
 
     xTaskCreate(ledTask1, "LedTask1", 128, (void *)leds, 1, NULL);
@@ -118,4 +118,5 @@ void setup()
 
 void loop()
 {
+   // Not used.
 }
