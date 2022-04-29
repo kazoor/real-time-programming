@@ -27,10 +27,7 @@ struct ledParams
     int led2Alpha;
 };
 
-char incomingByte;
 float inputValue = 0;
-int incomingCommand = 0;
-
 SemaphoreHandle_t mtx;
 
 void ledTask1(void *param)
