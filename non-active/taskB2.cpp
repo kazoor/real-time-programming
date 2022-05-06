@@ -27,16 +27,9 @@ struct ledCommand
 };
 
 float inputValue = 0;
-QueueHandle_t task1Queue = NULL;
-QueueHandle_t task2Queue = NULL;
-
-void interruptCallback(void)
-{
-    Serial.println("Cleared all queues!");
-
-    xQueueReset(task1Queue);
-    xQueueReset(task2Queue);
-}
+SemaphoreHandle_t mtx;
+QueueHandle_t task1Queue;
+QueueHandle_t task2Queue;
 
 void ledTask1(void *param)
 {
@@ -115,7 +108,9 @@ void setup()
 
     pinMode(11, OUTPUT);
     pinMode(10, OUTPUT);
-    pinMode(12, INPUT_PULLUP);
+
+    // Create the global mutex for ledparam struct.
+    mtx = xSemaphoreCreateMutex();
 
     task1Queue = xQueueCreate(MAX_QUEUE_SIZE, sizeof(ledCommand));
     task2Queue = xQueueCreate(MAX_QUEUE_SIZE, sizeof(ledCommand));
@@ -123,14 +118,9 @@ void setup()
     xTaskCreate(ledTask1, "LedTask1", 128, NULL, 1, NULL);
     xTaskCreate(ledTask2, "LedTask2", 128, NULL, 2, NULL);
     xTaskCreate(inputTask, "inputTask", 128, NULL, 0, NULL);
-
-    attachInterrupt(digitalPinToInterrupt(12), interruptCallback, RISING);
 }
 
 void loop()
 {
     // Not used.
-    Serial.println(uxQueueMessagesWaiting(task1Queue));
-    Serial.println(uxQueueMessagesWaiting(task2Queue));
-    delay(800);
 }
