@@ -30,18 +30,28 @@ void init(MyMonitor* monitor)
 {
   // allocating enough memory for monitor data
   monitor->mutex=xSemaphoreCreateMutex();
-  monitor->bufFullSem = xSemaphoreCreateCounting(); // <- sizes
-  monitor->bufEmptySem = xSemaphoreCreateCounting(); // <- sizes
+  monitor->bufFullSem = xSemaphoreCreateCounting(MAX_SIZE, MAX_BSIZE); // <- sizes
+  monitor->bufEmptySem = xSemaphoreCreateCounting(MAX_BUF_SIZE, 0)); // <- sizes
 }
 
 void read(MyMonitor* monitor, int* x){
   // read from monitor->data to *x
   // sema shits here
+  xSemaphoreTake(monitor->bufEmptySem, portMAX_DELAY);
+  xSemaphoreTake(monitor->mutex);
+  *x = monitor->buffer[--(monitor->index)];
+  xSemaporeGive(monitor->mutex);
+  xSemaphoreGive(monitor->bufFullSem);
 }
 
 void add(MyMonitor* monitor, int x){
   // write data from x to monitor->data
   // some more sema shit here
+  xSemaphoreTake(monitor->bufFullSem, portMax_DELAY);
+  xSemaphoreTake(monitor->mutex, portMAX_DELAY);
+  monitor->buffer[monitor->index++] = x;
+  xSemaphoreGive(monitor->mutex);
+  xSemaphoreGive(monitor->bufEmptySem);
 }
 void setup() {
   // put your setup code here, to run once:
