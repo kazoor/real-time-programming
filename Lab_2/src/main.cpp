@@ -36,6 +36,8 @@ void interruptCallback(void)
 
     xQueueReset(task1Queue);
     xQueueReset(task2Queue);
+
+    delay(200);
 }
 
 void ledTask1(void *param)
@@ -48,7 +50,7 @@ void ledTask1(void *param)
             xQueueReceive(task1Queue, (void *)cmd, portMAX_DELAY);
             analogWrite(10, cmd->alpha);
         }
-        vTaskDelay(pdMS_TO_TICKS(100));
+        vTaskDelay(pdMS_TO_TICKS(4000));
     }
 }
 
@@ -62,7 +64,7 @@ void ledTask2(void *param)
             xQueueReceive(task2Queue, (void *)cmd, portMAX_DELAY);
             analogWrite(11, cmd->alpha);
         }
-        vTaskDelay(pdMS_TO_TICKS(100));
+        vTaskDelay(pdMS_TO_TICKS(4000));
     }
 }
 
@@ -115,22 +117,19 @@ void setup()
 
     pinMode(11, OUTPUT);
     pinMode(10, OUTPUT);
-    pinMode(12, INPUT_PULLUP);
+    // pinMode(2, INPUT_PULLUP);
 
     task1Queue = xQueueCreate(MAX_QUEUE_SIZE, sizeof(ledCommand));
     task2Queue = xQueueCreate(MAX_QUEUE_SIZE, sizeof(ledCommand));
 
+    attachInterrupt(digitalPinToInterrupt(2), interruptCallback, RISING);
+
     xTaskCreate(ledTask1, "LedTask1", 128, NULL, 1, NULL);
     xTaskCreate(ledTask2, "LedTask2", 128, NULL, 2, NULL);
     xTaskCreate(inputTask, "inputTask", 128, NULL, 0, NULL);
-
-    attachInterrupt(digitalPinToInterrupt(12), interruptCallback, RISING);
 }
 
 void loop()
 {
-    // Not used.
-    Serial.println(uxQueueMessagesWaiting(task1Queue));
-    Serial.println(uxQueueMessagesWaiting(task2Queue));
-    delay(800);
+    // Unused
 }
