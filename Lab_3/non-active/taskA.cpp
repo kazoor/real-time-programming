@@ -3,20 +3,7 @@
 #include <semphr.h>
 
 #define MAX_QUEUE_SIZE 10
-/*
- * A. Monitor
-Implement a monitor that contains a data structure (an array) which can contain a limited number of
-integer numbers. Adding and reading the numbers form the data structure has to be in queue manner, i.e.,
-First In First Out (FIFO). Notice that it is not allowed to use FreeRTOS queues.
 
-• The monitor has to provide 3 functions;  init(), read() and add().
-• init()  initializes the monitor, e.g.,  initialize semaphores.
-• read() reads and removes the number from the top of the queue if it is not empty. If the queue is empty
-the caller task will block.
-• add() adds a number to the end of the queue if it is not full. If the queue is full the caller task will block.
-• No more than one task is allowed to add to or read from the queue at the same time.
-• The protection and synchronization has to be wrapped in read() and add() functions.
- */
 typedef struct Monitor
 {
   SemaphoreHandle_t mutex;
@@ -26,7 +13,6 @@ typedef struct Monitor
   int index = 0;
 } MyMonitor;
 
-// kanske ska ta med index här????
 void init(MyMonitor *monitor)
 {
   // allocating enough memory for monitor data
@@ -38,7 +24,6 @@ void init(MyMonitor *monitor)
 void read(MyMonitor *monitor, int *x)
 {
   // read from monitor->data to *x
-  // sema shits here
   xSemaphoreTake(monitor->bufEmptySem, portMAX_DELAY);
   xSemaphoreTake(monitor->mutex, portMAX_DELAY);
 
@@ -57,7 +42,6 @@ void read(MyMonitor *monitor, int *x)
 void add(MyMonitor *monitor, int x)
 {
   // write data from x to monitor->data
-  // some more sema shit here
   xSemaphoreTake(monitor->bufFullSem, portMAX_DELAY);
   xSemaphoreTake(monitor->mutex, portMAX_DELAY);
   monitor->buffer[monitor->index++] = x;
