@@ -58,7 +58,8 @@ void ledTask()
 void ledTask2()
 {
 }
-
+/// Method to check if an interrupt is being performed and we discovered that the arduino gets an input 
+/// even when we do not press the buttons
 void testInterrup()
 {
     mode = mode == FORWARD ? BOTH : FORWARD;
